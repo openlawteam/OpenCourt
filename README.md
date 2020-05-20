@@ -1,6 +1,8 @@
 # OpenCourt
 > Digital dispute resolution with OpenLaw 
 
+[OpenLaw](https://lib.openlaw.io/web/default/template/OpenCourt)
+
 Rinkeby: [0x8cBD0D5B00D237a462b8E6389bf341627cCe1aec](https://rinkeby.etherscan.io/address/0x8cbd0d5b00d237a462b8e6389bf341627cce1aec#code)
 
 ## Judge Membership Token - "OpenCourt Judge" - [0x0fd583A2161B08526008559dc9914613679ef68e](https://rinkeby.etherscan.io/address/0x0fd583a2161b08526008559dc9914613679ef68e#code) 
