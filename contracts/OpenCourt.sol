@@ -11,11 +11,9 @@
 * ██║     ██║   ██║██║   ██║██████╔╝   ██║   
 * ██║     ██║   ██║██║   ██║██╔══██╗   ██║   
 * ╚██████╗╚██████╔╝╚██████╔╝██║  ██║   ██║   
-*
-* OpenLaw.io Rinkeby Beta v0.1
 */
-pragma solidity 0.5.17;
 
+pragma solidity 0.5.17;
 /*
  * @dev Provides information about the current execution context, including the
  * sender of the transaction and its data. While these are generally available
@@ -47,11 +45,10 @@ OpenCourt Protocol
 *****************/
 contract OpenCourt is Context { 
     // internal references
-    address public judgeDAO = 0x2aF666d9a6f57BD1D6E935c6bE70d59f252D3476;
     address public judgeToken = 0x0fd583A2161B08526008559dc9914613679ef68e;
     IToken private judge = IToken(judgeToken);
-    address public leethToken = 0xC4Bd20B06fa6bF1fbf2c65ec750Aa058453d1e38;
-    IToken private leeth = IToken(leethToken);
+    address public judgementToken = 0x0776400cE11E99ff18293F65fD4d36EC50d7cd6a;
+    IToken private judgement = IToken(judgementToken);
     string public emoji = "🌐📜⚔️";
     string public procedures = "procedures.codeslaw.eth";
     
@@ -67,6 +64,7 @@ contract OpenCourt is Context {
         string response;
         string verdict;
         bool resolved;
+        bool responded;
     }
     
     event Complaint(address indexed complainant, address indexed respondent, uint256 indexed number, string complaint);
@@ -89,6 +87,7 @@ contract OpenCourt is Context {
             complaint,
             "PENDING",
             "PENDING",
+            false,
             false);
                 
         emit Complaint(_msgSender(), respondent, number, complaint);
@@ -106,21 +105,19 @@ contract OpenCourt is Context {
 	Dispute storage dis = disp[number];
         require(_msgSender() == dis.respondent);
         dis.response = response;
+        dis.responded = true;
         emit Response(number, response);
     }
 
-    /**Verdict & MGMT*/
+    /**Verdict*/
     function issueVerdict(uint256 number, string memory verdict) public {
-        require(judge.balanceOf(_msgSender()) >= 1, "judgeToken balance insufficient");
         Dispute storage dis = disp[number];
+        require(dis.responded == true);
+        require(judge.balanceOf(_msgSender()) >= 1, "judgeToken balance insufficient");
+        require(_msgSender() != dis.complainant || _msgSender() != dis.respondent);
         dis.verdict = verdict;
         dis.resolved = true;
-        leeth.transfer(_msgSender(), 1000000000000000000);
+        judgement.transfer(_msgSender(), 1000000000000000000);
         emit Verdict(number, verdict);
     }
-
-    function updateProcedures(string memory _procedures) public {
-        require(_msgSender() == judgeDAO, "Caller is not JudgeDAO");
-        procedures = _procedures;
-    } 
 }
