@@ -47,13 +47,13 @@ OpenCourt Protocol
 *****************/
 contract OpenCourt is Context { 
     // internal references
-    address public judgeDAO;
-    address public judgeToken;
+    address public judgeDAO = 0x2aF666d9a6f57BD1D6E935c6bE70d59f252D3476;
+    address public judgeToken = 0x0fd583A2161B08526008559dc9914613679ef68e;
     IToken private judge = IToken(judgeToken);
-    address public leethToken;
+    address public leethToken = 0xC4Bd20B06fa6bF1fbf2c65ec750Aa058453d1e38;
     IToken private leeth = IToken(leethToken);
     string public emoji = "🌐📜⚔️";
-    string public procedures;
+    string public procedures = "procedures.codeslaw.eth";
     
     // dispute tracking 
     uint256 public dispute; 
@@ -71,34 +71,25 @@ contract OpenCourt is Context {
     
     event Complaint(address indexed complainant, address indexed respondent, uint256 indexed number, string complaint);
     event ComplaintUpdated(uint256 indexed number, string complaint);
-    event ProceduresUpgraded(string procedures);
     event Response(uint256 indexed number, string response);
-    event ResponseUpdated(uint256 indexed number, string response); 
     event Verdict(uint256 indexed number, string verdict);
-    
-    constructor (address _judgeDAO, address _judgeToken, address _leethToken, string memory _procedures) public {
-        judgeDAO = _judgeDAO;
-        judgeToken = _judgeToken;
-        leethToken = _leethToken;
-        procedures = _procedures;
-    } 
     
     /**************
     COURT FUNCTIONS
     **************/
     /**Complaint*/
     function submitComplaint(address respondent, string memory complaint) public {
-	    uint256 number = dispute + 1; 
-	    dispute = dispute + 1;
+	uint256 number = dispute + 1; 
+	dispute = dispute + 1;
 	    
         disp[number] = Dispute( 
-                _msgSender(),
-                respondent,
-                number,
-                complaint,
-                "PENDING",
-                "PENDING",
-                false);
+            _msgSender(),
+            respondent,
+            number,
+            complaint,
+            "PENDING",
+            "PENDING",
+            false);
                 
         emit Complaint(_msgSender(), respondent, number, complaint);
     }
@@ -112,19 +103,12 @@ contract OpenCourt is Context {
     
     /**Response*/
     function submitResponse(uint256 number, string memory response) public {
-	    Dispute storage dis = disp[number];
+	Dispute storage dis = disp[number];
         require(_msgSender() == dis.respondent);
         dis.response = response;
         emit Response(number, response);
     }
-    
-    function updateResponse(uint256 number, string memory updatedResponse) public {
-        Dispute storage dis = disp[number];
-        require(_msgSender() == dis.respondent);
-        dis.response = updatedResponse;
-        emit ResponseUpdated(number, updatedResponse);
-    }
-    
+
     /**Verdict & MGMT*/
     function issueVerdict(uint256 number, string memory verdict) public {
         require(judge.balanceOf(_msgSender()) >= 1, "judgeToken balance insufficient");
@@ -134,25 +118,9 @@ contract OpenCourt is Context {
         leeth.transfer(_msgSender(), 1000000000000000000);
         emit Verdict(number, verdict);
     }
-    
-    function updateJudgeDAO(address _judgeDAO) public {
-        require(_msgSender() == judgeDAO, "Caller not authorized.");
-        judgeDAO = _judgeDAO;
-    }
-    
-    function updateJudgeToken(address _judgeToken) public {
-        require(_msgSender() == judgeDAO, "Caller not authorized.");
-        judgeToken = _judgeToken;
-    } 
-    
-    function updateLeethToken(address _leethToken) public {
-        require(_msgSender() == judgeDAO, "Caller not authorized.");
-        leethToken = _leethToken;
-    }
-    
-    function upgradeProcedures(string memory _procedures) public {
-        require(_msgSender() == judgeDAO, "Caller not authorized.");
+
+    function updateProcedures(string memory _procedures) public {
+        require(_msgSender() == judgeDAO, "Caller is not JudgeDAO");
         procedures = _procedures;
-        emit ProceduresUpgraded(procedures);
     } 
 }
