@@ -11,7 +11,7 @@
 * ██║     ██║   ██║██║   ██║██████╔╝   ██║   
 * ██║     ██║   ██║██║   ██║██╔══██╗   ██║   
 * ╚██████╗╚██████╔╝╚██████╔╝██║  ██║   ██║   
-*/
+**/
 
 pragma solidity 0.5.17;
 /*
@@ -46,13 +46,13 @@ OpenCourt Protocol
 *****************/
 contract OpenCourt is Context { 
     // internal references
-    address public judgeToken = 0x0fd583A2161B08526008559dc9914613679ef68e;
-    IToken private judge = IToken(judgeToken);
-    address public judgementToken = 0x0776400cE11E99ff18293F65fD4d36EC50d7cd6a;
-    IToken private judgement = IToken(judgementToken);
-    string public emoji = "🌐📜⚔️";
-    string public procedures = "procedures.codeslaw.eth";
-    
+    address public judge;
+    address public judgment;
+    address payable public openCourt;
+    uint256 public judgeBalance;
+    uint256 public judgmentReward;
+    string public procedures;
+
     // dispute tracking 
     uint256 public dispute; 
     mapping (uint256 => Dispute) public disp;
@@ -60,6 +60,8 @@ contract OpenCourt is Context {
     struct Dispute {  
         address complainant; 
         address respondent;
+        address token;
+        uint256 disputed;
         uint256 number;
         string complaint;
         string response;
@@ -72,18 +74,36 @@ contract OpenCourt is Context {
     event ComplaintUpdated(uint256 indexed number, string complaint);
     event Response(uint256 indexed number, string response);
     event Verdict(uint256 indexed number, string verdict);
+    event OpenCourtPaid(address indexed sender, uint256 indexed payment, string indexed details);
+    
+    constructor (
+        address _judge, 
+        address _judgment, 
+        address payable _openCourt, 
+        uint256 _judgeBalance, 
+        uint256 _judgmentReward,
+        string memory _procedures) public { 
+        judge = _judge;
+        judgment = _judgment;
+        openCourt = _openCourt;
+        judgeBalance = _judgeBalance;
+        judgmentReward = _judgmentReward;
+        procedures = _procedures;
+    } 
     
     /**************
     COURT FUNCTIONS
     **************/
-    /**Complaint*/
-    function submitComplaint(address respondent, string memory complaint) public {
-	uint256 number = dispute + 1; 
-	dispute = dispute + 1;
+    /**Complaint**/
+    function submitComplaint(address respondent, address token, uint256 disputed, string memory complaint) public {
+	    uint256 number = dispute + 1; 
+	    dispute = dispute + 1;
 	    
         disp[number] = Dispute( 
             _msgSender(),
             respondent,
+            token,
+            disputed,
             number,
             complaint,
             "PENDING",
@@ -96,29 +116,65 @@ contract OpenCourt is Context {
     
     function updateComplaint(uint256 number, string memory updatedComplaint) public {
         Dispute storage dis = disp[number];
-        require(_msgSender() == dis.complainant);
+        require(_msgSender() == dis.complainant, "caller not complainant");
         dis.complaint = updatedComplaint;
         emit ComplaintUpdated(number, updatedComplaint);
     }
     
-    /**Response*/
+    /**Response**/
     function submitResponse(uint256 number, string memory response) public {
 	Dispute storage dis = disp[number];
-        require(_msgSender() == dis.respondent);
+        require(_msgSender() == dis.respondent, "caller not respondent");
         dis.response = response;
         dis.responded = true;
         emit Response(number, response);
     }
 
-    /**Verdict*/
-    function issueVerdict(uint256 number, string memory verdict) public {
+    /**Verdict**/
+    function issueVerdict(uint256 number, uint256 complainantAward, uint256 respondentAward, string memory verdict) public {
         Dispute storage dis = disp[number];
-        require(dis.responded == true);
-        require(judge.balanceOf(_msgSender()) >= 1, "judgeToken balance insufficient");
-        require(_msgSender() != dis.complainant || _msgSender() != dis.respondent);
+        require(_msgSender() != dis.complainant, "resolver cannot be dispute party");
+        require(_msgSender() != dis.respondent, "resolver cannot be dispute party");
+        require(complainantAward + respondentAward == dis.disputed, "resolution awards must equal deposit amount");
+        require(IToken(judge).balanceOf(_msgSender()) >= judgeBalance, "judge token balance insufficient to resolve");
+        IToken(dis.token).transferFrom(dis.complainant, dis.respondent, respondentAward);
+        IToken(dis.token).transferFrom( dis.respondent, dis.complainant, complainantAward);
         dis.verdict = verdict;
         dis.resolved = true;
-        judgement.transfer(_msgSender(), 1000000000000000000);
+        IToken(judgment).transfer(_msgSender(), judgmentReward);
         emit Verdict(number, verdict);
+    }
+    
+    /*************
+    MGMT FUNCTIONS
+    *************/
+    modifier onlyOpenCourt () {
+        require(_msgSender() == openCourt, "caller not openCourt");
+        _;
+    }
+    
+    function payOpenCourt(string memory details) payable public { // public attaches ether (Ξ) with details to openCourt
+        openCourt.transfer(msg.value);
+        emit OpenCourtPaid(_msgSender(), msg.value, details);
+    }
+
+    function updateJudge(address _judge) public onlyOpenCourt { // token address
+        judge = _judge;
+    }
+    
+    function updateJudgeBalance(uint256 _judgeBalance) public onlyOpenCourt {
+        judgeBalance = _judgeBalance;
+    }
+    
+    function updateJudgment(address _judgment) public onlyOpenCourt { // token address
+        judgment = _judgment;
+    }
+    
+    function updateJudgmentReward(uint256 _judgmentReward) public onlyOpenCourt {
+        judgmentReward = _judgmentReward;
+    }
+
+    function updateOpenCourt(address payable _openCourt) public onlyOpenCourt {
+        openCourt = _openCourt;
     }
 }
