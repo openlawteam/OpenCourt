@@ -96,8 +96,8 @@ contract OpenCourt is Context {
     **************/
     /**Complaint**/
     function submitComplaint(address respondent, address token, uint256 disputed, string memory complaint) public {
-	    uint256 number = dispute + 1; 
-	    dispute = dispute + 1;
+	uint256 number = dispute + 1; 
+	dispute = dispute + 1;
 	    
         disp[number] = Dispute( 
             _msgSender(),
