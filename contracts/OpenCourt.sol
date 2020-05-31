@@ -135,7 +135,7 @@ contract OpenCourt is Context {
         Dispute storage dis = disp[number];
         require(_msgSender() != dis.complainant, "resolver cannot be dispute party");
         require(_msgSender() != dis.respondent, "resolver cannot be dispute party");
-        require(complainantAward + respondentAward == dis.disputed, "resolution award must equal deposit amount");
+        require(complainantAward + respondentAward == dis.disputed, "resolution award must equal amount disputed");
         require(IToken(judge).balanceOf(_msgSender()) >= judgeBalance, "judge token balance insufficient to resolve");
         IToken(dis.token).transferFrom(dis.complainant, dis.respondent, respondentAward);
         IToken(dis.token).transferFrom(dis.respondent, dis.complainant, complainantAward);
