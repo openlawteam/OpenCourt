@@ -135,10 +135,10 @@ contract OpenCourt is Context {
         Dispute storage dis = disp[number];
         require(_msgSender() != dis.complainant, "resolver cannot be dispute party");
         require(_msgSender() != dis.respondent, "resolver cannot be dispute party");
-        require(complainantAward + respondentAward == dis.disputed, "resolution awards must equal deposit amount");
+        require(complainantAward + respondentAward == dis.disputed, "resolution award must equal deposit amount");
         require(IToken(judge).balanceOf(_msgSender()) >= judgeBalance, "judge token balance insufficient to resolve");
         IToken(dis.token).transferFrom(dis.complainant, dis.respondent, respondentAward);
-        IToken(dis.token).transferFrom( dis.respondent, dis.complainant, complainantAward);
+        IToken(dis.token).transferFrom(dis.respondent, dis.complainant, complainantAward);
         dis.verdict = verdict;
         dis.resolved = true;
         IToken(judgment).transfer(_msgSender(), judgmentReward);
@@ -176,5 +176,9 @@ contract OpenCourt is Context {
 
     function updateOpenCourt(address payable _openCourt) public onlyOpenCourt {
         openCourt = _openCourt;
+    }
+    
+    function updateProcedures(string memory _procedures) public onlyOpenCourt {
+        procedures = _procedures;
     }
 }
