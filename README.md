@@ -3,7 +3,7 @@
 
 [OpenLaw](https://lib.openlaw.io/web/default/template/OpenCourt)
 
-Mainnet: [0x1cec62223ad247288fa0e6cd16a61e90c3eedbfe] (https://etherscan.io/address/0x1cec62223ad247288fa0e6cd16a61e90c3eedbfe#code)
+Mainnet: [0x1cec62223ad247288fa0e6cd16a61e90c3eedbfe](https://etherscan.io/address/0x1cec62223ad247288fa0e6cd16a61e90c3eedbfe#code)
 
 Rinkeby: [0x47E5f67066fa967af8bB7b85099617130898B1a5 (https://rinkeby.etherscan.io/address/0x47E5f67066fa967af8bB7b85099617130898B1a5#code)
 
