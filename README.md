@@ -5,7 +5,7 @@
 
 Mainnet: [0x1cec62223ad247288fa0e6cd16a61e90c3eedbfe](https://etherscan.io/address/0x1cec62223ad247288fa0e6cd16a61e90c3eedbfe#code)
 
-Rinkeby: [0x47E5f67066fa967af8bB7b85099617130898B1a5 (https://rinkeby.etherscan.io/address/0x47E5f67066fa967af8bB7b85099617130898B1a5#code)
+Rinkeby: [0x47E5f67066fa967af8bB7b85099617130898B1a5](https://rinkeby.etherscan.io/address/0x47E5f67066fa967af8bB7b85099617130898B1a5#code)
 
 #### Judge Membership Token - "OpenCourt Judge" - [0x0fd583A2161B08526008559dc9914613679ef68e](https://rinkeby.etherscan.io/address/0x0fd583a2161b08526008559dc9914613679ef68e#code) 
 > [Rinkeby DAO](https://rinkeby.aragon.org/#/opencourt)
